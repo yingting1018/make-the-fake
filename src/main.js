@@ -14,7 +14,7 @@ let config = {
             debug: true
         },
     },
-    scene: [ Title, Play ]
+    scene: [ Title, Play, Credits ]
 }
 let game = new Phaser.Game(config)
 let borderUIsize = game.config.height / 15

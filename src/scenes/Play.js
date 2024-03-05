@@ -60,26 +60,26 @@ class Play extends Phaser.Scene
               this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight);
               this.player.body.setSize(140, 124).setOffset(4, 4)
               cursors = this.input.keyboard.createCursorKeys()
-              //this.moveDirection = 'right'; // Change this to your desired initial direction
               this.moveDirection = 'right';
     }       
 
     update() {
-        let playerVector = new Phaser.Math.Vector2(0, 0)
-        switch (this.moveDirection) {
-            case 'right':
-                this.player.setVelocityX(100); // Move right
-                if (this.player.x >= game.config.width - 115) {
-                    this.moveDirection = 'left'; // Change direction to left
-                }
-                break;
-            case 'left':
-                this.player.setVelocityX(-100); // Move left
-                if (this.player.x <= 115) {
-                    this.moveDirection = 'right'; // Change direction to right
-                }
-                break;
-        }
+        let playerVector = new Phaser.Math.Vector2(0, 0);
+    switch (this.moveDirection) {
+        case "right":
+            this.player.setVelocityX(100); // Move right
+            if (this.player.x === 874) { // 874 (rightmost position)
+                console.log("swapped")
+                this.moveDirection = 'left'; // Change direction to left
+            }
+           break;
+        case "left":
+            this.player.setVelocityX(-100); // Move left
+            console.log("Left movement triggered"); // Check if left case is triggered
+            if (this.player.x === 214) { // Leftmost position
+                this.moveDirection = 'right'; // Change direction to right
+            }
+    }
         if (this.player.x >= game.config.width - 115) {
             this.playerDirection = 'lay'; // Set player direction to lay when at right boundary
         } else {
@@ -93,7 +93,7 @@ class Play extends Phaser.Scene
         {
           this.scene.start("titleScene");
         }
-        // playerVector.normalize()
+        playerVector.normalize()
 
         // this.player.setVelocity(this.PLAYER_VELOCITY * playerVector.x, this.PLAYER_VELOCITY * playerVector.y)
 

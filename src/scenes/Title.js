@@ -4,22 +4,25 @@ class Title extends Phaser.Scene
     {
         super("titleScene")
     }
+    preload()
+    {
+        this.load.audio('bg', './assets/audio/pupbgmusic.wav')
+        this.load.image('titlebg', './assets/img/titlebg.png');
+    }
     create()
     {
-        let menuConfig = {
-            fontFamily: 'Courier',
-            fontSize: '28px',
-            backgroundColor: '#F3B141'
-        }
-        this.add.text(game.config.width/2, game.config.height/2 - borderUIsize - borderPadding, 'woof', menuConfig).setOrigin(0.5);
-
+        this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'titlebg').setOrigin(0,0);
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        let bgmusic = this.sound.add('bg', { volume: 0.3});
+        bgmusic.play();
+        bgmusic.setLoop(true);
     }
     update()
     {
         if (Phaser.Input.Keyboard.JustDown(keyUP))
         {
             this.scene.start("playScene");
+            this.sound.stopByKey('bg');
         }
     }
     

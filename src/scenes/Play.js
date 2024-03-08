@@ -8,6 +8,7 @@ class Play extends Phaser.Scene
     preload()
     {
         this.load.image('bg', './assets/img/tummybg.png');
+        this.load.image('cursor', './assets/img/cursor.png');
         this.load.spritesheet('puppy', './assets/img/puppy.png',
         {
             frameWidth: 140,
@@ -20,8 +21,13 @@ class Play extends Phaser.Scene
         this.physics.world.drawDebug = false;
         keyRESET = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
         keyCREDITS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+        keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'bg').setOrigin(0, 0);
+        // this.cursor = new Cursor(this, game.config.width/2, game.config.height/2, 'cursor').setOrigin(0.5, 0);
+        this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 2, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5);
+        this.gameOver = false;
 
         this.anims.create({
             key: 'idle', 
@@ -51,7 +57,7 @@ class Play extends Phaser.Scene
                 end: 2
               })
             })
-            this.player = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy', 1).setScale(1.5)
+            this.player = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy', 0).setScale(1.5)
               this.player.body.setCollideWorldBounds(true)
               const middleThirdHeight = game.config.height / 1.5;
               const middleThirdStartY = (game.config.height - middleThirdHeight) / 2;
@@ -69,13 +75,11 @@ class Play extends Phaser.Scene
         case "right":
             this.player.setVelocityX(100); // Move right
             if (this.player.x === 874) { // 874 (rightmost position)
-                console.log("swapped")
                 this.moveDirection = 'left'; // Change direction to left
             }
            break;
         case "left":
             this.player.setVelocityX(-100); // Move left
-            console.log("Left movement triggered"); // Check if left case is triggered
             if (this.player.x === 214) { // Leftmost position
                 this.moveDirection = 'right'; // Change direction to right
             }
@@ -93,13 +97,31 @@ class Play extends Phaser.Scene
         {
           this.scene.start("titleScene");
         }
+        
+        if(this.checkCollision(this.player, this.cursor)) {
+            console.log('puppy touched')
+            this.cursor.reset()
+          }
         playerVector.normalize()
-
-        // this.player.setVelocity(this.PLAYER_VELOCITY * playerVector.x, this.PLAYER_VELOCITY * playerVector.y)
-
-        // let playerMovement
-        // playerVector.length() ? playerMovement = 'lay' : playerMovement = 'idle'
-        // this.player.play(playerMovement + '-' + playerDirection, true)
-
+        if (!this.gameOver) {
+            this.cursor.update();
+        }
+        if (this.cursor.y >= game.config.height - 210 && !this.checkCollision(this.player, this.cursor)) {
+            this.gameOver = true;
+            this.player.setVelocityX(0);
+            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60);
+            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45);
+            return;
+        }
+    }
+    checkCollision(puppy, cursor) {
+        if (puppy.x < cursor.x + cursor.width && 
+          puppy.x + puppy.width > cursor.x && 
+          puppy.y + 150 < cursor.y + cursor.height &&
+          puppy.height + puppy.y + 150 > cursor.y) {
+          return true
+        } else {
+          return false
+        }
     }
 }

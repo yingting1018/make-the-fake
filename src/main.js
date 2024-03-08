@@ -18,8 +18,14 @@ let config = {
 
 let game = new Phaser.Game(config)
 
+let keySPACE, keyRESET, keyCREDITS, keyUP
+let cursors
+
+// global variables
 let borderUIsize = game.config.height / 15
 let borderPadding = borderUIsize / 3
 
-let keySPACE, keyRESET, keyCREDITS, keyUP
-let cursors
+const middleThirdHeight = game.config.height / 2.5
+const middleThirdStartY = (game.config.height - middleThirdHeight) / 2
+const leftBorderX = 115
+const rightBorderX = game.config.width - 115

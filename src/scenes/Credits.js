@@ -21,15 +21,15 @@ class Credits extends Phaser.Scene {
             },
             fixedWidth: 0
         }
-        this.add.text(game.config.width/2, game.config.height/3 - borderUIsize - borderPadding, 'CREDITS:', creditsConfig).setOrigin(0.5);
-        this.add.text(game.config.width/2, game.config.height/2.5, 'Press up key to go to title', creditsConfig).setOrigin(0.5);
-        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+        this.add.text(game.config.width/2, game.config.height/3 - borderUIsize - borderPadding, 'CREDITS:', creditsConfig).setOrigin(0.5)
+        this.add.text(game.config.width/2, game.config.height/2.5, 'Press up key to go to title', creditsConfig).setOrigin(0.5)
+        keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
      }
 
     update() {
         if (Phaser.Input.Keyboard.JustDown(keyUP))
               {
-                this.scene.start("titleScene");
+                this.scene.start("titleScene")
               }
     }
 }

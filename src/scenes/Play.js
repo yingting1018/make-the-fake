@@ -1,12 +1,9 @@
-class Play extends Phaser.Scene
-{
-    constructor()
-    {
+class Play extends Phaser.Scene {
+    constructor() {
         super("playScene")
-    };
+    }
 
-    preload()
-    {
+    preload() {
         this.load.image('bg', './assets/img/tummybg.png')
         this.load.spritesheet('puppy', './assets/img/puppy.png', {
             frameWidth: 140,
@@ -18,13 +15,12 @@ class Play extends Phaser.Scene
         })
     }
 
-    create()
-    {
-        this.physics.world.drawDebug = false;
-        keyRESET = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-        keyCREDITS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
-        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'bg').setOrigin(0, 0);
+    create() {
+        this.physics.world.drawDebug = false
+        keyRESET = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
+        keyCREDITS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C)
+        keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+        this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'bg').setOrigin(0, 0)
 
         this.anims.create({
             key: 'idle', 
@@ -67,8 +63,8 @@ class Play extends Phaser.Scene
             this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight)
             this.player.body.setSize(140, 124).setOffset(4, 4)
             cursors = this.input.keyboard.createCursorKeys()
-            //this.moveDirection = 'right'; // Change this to your desired initial direction
-            this.moveDirection = 'right';
+            //this.moveDirection = 'right' // Change this to your desired initial direction
+            this.moveDirection = 'right'
             
     }
 
@@ -76,30 +72,31 @@ class Play extends Phaser.Scene
         let playerVector = new Phaser.Math.Vector2(0, 0)
         switch (this.moveDirection) {
             case 'right':
-                this.player.setVelocityX(100); // Move right
+                this.player.setVelocityX(100) // Move right
                 if (this.player.x >= game.config.width - 115) {
-                    this.moveDirection = 'left'; // Change direction to left
+                    this.moveDirection = 'left' // Change direction to left
                 }
-                break;
+                break
             case 'left':
-                this.player.setVelocityX(-100); // Move left
+                this.player.setVelocityX(-100) // Move left
                 if (this.player.x <= 115) {
-                    this.moveDirection = 'right'; // Change direction to right
+                    this.moveDirection = 'right' // Change direction to right
                 }
-                break;
+                break
         }
+
         if (this.player.x >= game.config.width - 115) {
-            this.playerDirection = 'lay'; // Set player direction to lay when at right boundary
+            this.playerDirection = 'lay' // Set player direction to lay when at right boundary
         } else {
-            this.playerDirection = 'idle'; // Set player direction to idle otherwise
+            this.playerDirection = 'idle' // Set player direction to idle otherwise
         }
-        if (Phaser.Input.Keyboard.JustDown(keyCREDITS))
-        {
-          this.scene.start("creditsScene");
+
+        if (Phaser.Input.Keyboard.JustDown(keyCREDITS)) {
+          this.scene.start("creditsScene")
         }
-        if (Phaser.Input.Keyboard.JustDown(keyRESET))
-        {
-          this.scene.start("titleScene");
+        
+        if (Phaser.Input.Keyboard.JustDown(keyRESET)) {
+          this.scene.start("titleScene")
         }
         // playerVector.normalize()
 

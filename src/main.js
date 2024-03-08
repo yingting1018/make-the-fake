@@ -1,11 +1,10 @@
-'use strict';
+'use strict'
 
 let config = {
     type: Phaser.AUTO,
     height: 980,
     width: 1100,
-    render:
-    {
+    render: {
         pixelArt: true
     },
     physics: {
@@ -18,6 +17,7 @@ let config = {
 }
 
 let game = new Phaser.Game(config)
+
 let borderUIsize = game.config.height / 15
 let borderPadding = borderUIsize / 3
 

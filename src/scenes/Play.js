@@ -32,7 +32,7 @@ class Play extends Phaser.Scene {
         this.playbg = this.add.tileSprite(0, 0, 1100, 980, 'playbg').setOrigin(0, 0)
 
         this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight)
-        this.physics.world.drawDebug = true
+        this.physics.world.drawDebug = false
         this.gameOver = false
 
         // puppy sprite

@@ -25,7 +25,7 @@ let cursors
 let borderUIsize = game.config.height / 15
 let borderPadding = borderUIsize / 3
 
-const middleThirdHeight = game.config.height / 2.5
+const middleThirdHeight = game.config.height / 1.5
 const middleThirdStartY = (game.config.height - middleThirdHeight) / 2
 const leftBorderX = 115
 const rightBorderX = game.config.width - 115

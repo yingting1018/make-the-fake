@@ -20,11 +20,10 @@ class Title extends Phaser.Scene {
 
         let menuConfig = {
             fontFamily: 'Courier',
-            fontSize: '28px',
-            backgroundColor: '#F3B141'
+            fontSize: '28px'
         }
 
-        this.add.text(game.config.width/2, game.config.height/2 - borderUIsize - borderPadding, 'Press arrow up to Start', menuConfig).setOrigin(0.5)
+        this.add.text(game.config.width/2.5, game.config.height/1.45 - borderUIsize - borderPadding, 'PRESS ARROW UP\n TO START', menuConfig).setOrigin(0.5)
     }
     
     update() {

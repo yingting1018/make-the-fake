@@ -31,14 +31,14 @@ class Play extends Phaser.Scene {
         // background
         this.playbg = this.add.tileSprite(0, 0, 1100, 980, 'playbg').setOrigin(0, 0)
 
-        this.physics.world.drawDebug = false
         this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight)
+        this.physics.world.drawDebug = true
         this.gameOver = false
 
         // puppy sprite
-        this.puppy = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy').setScale(1.5)
+        this.puppy = this.physics.add.sprite(game.config.width/2, game.config.height/1.5, 'puppy').setScale(1.5)
             this.puppy.body.setCollideWorldBounds(true)
-            this.puppy.body.setSize(140, 124).setOffset(4, 4)
+            this.puppy.body.setSize(115, 120).setOffset(12, 4)
 
             // animation of puppy
             this.anims.create({
@@ -78,31 +78,34 @@ class Play extends Phaser.Scene {
 
     update() {
         let puppyVector = new Phaser.Math.Vector2(0, 0)
-    switch (this.moveDirection) {
-        case "right":
-            this.puppy.setVelocityX(100) // Move right
-            if (this.puppy.x === 874) { // 874 (rightmost position)
-                this.moveDirection = 'left' // Change direction to left
-            }
-           break
 
-        case "left":
-            this.puppy.setVelocityX(-100) // Move left
-            if (this.puppy.x === 214) { // Leftmost position
-                this.moveDirection = 'right' // Change direction to right
-            }
-    }
+        switch (this.moveDirection) {
+            case "right":
+                this.puppy.setVelocityX(150) // Move right
+                if (this.puppy.x >= 890) { // 874 (rightmost position)
+                    this.moveDirection = 'left' // Change direction to left
+                }
+            break
+
+            case "left":
+                this.puppy.setVelocityX(-150) // Move left
+                if (this.puppy.x <= 205) { // Leftmost position
+                    this.moveDirection = 'right' // Change direction to right
+                }
+            break
+        }
+
         if (this.puppy.x >= game.config.width - 115) {
             this.puppyDirection = 'lay' // Set puppy direction to lay when at right boundary
         } else {
             this.puppyDirection = 'idle' // Set puppy direction to idle otherwise
         }
-
+        // change scenes
         if (Phaser.Input.Keyboard.JustDown(keyCREDITS)) {
-          this.scene.start("creditsScene")
+            this.scene.start("creditsScene")
         }
         if (Phaser.Input.Keyboard.JustDown(keyRESET)) {
-          this.scene.start("titleScene")
+            this.scene.start("titleScene")
         }
         
         if(this.checkCollision(this.puppy, this.cursor)) {

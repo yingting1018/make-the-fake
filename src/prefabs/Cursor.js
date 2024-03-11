@@ -31,6 +31,6 @@ class Cursor extends Phaser.GameObjects.Sprite {
         reset() {
             this.isFiring = false
             this.spaceKeyIsDown = false
-            this.y = game.config.width / 2, game.config.height / 2
+            this.y = game.config.height / 3
         }
 }

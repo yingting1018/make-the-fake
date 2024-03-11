@@ -72,7 +72,24 @@ class Play extends Phaser.Scene {
             })
 
         // cursor sprite
-        this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 2, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
+        this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
+
+        // temp instructions
+        this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
+
+        // tickle counter
+        this.tickleCount = 0
+        this.tickleCountText = this.add.text(
+            game.config.width / 2,
+            game.config.height / 12,
+            'Tickle Count: 0',
+            {
+                fontFamily: 'Arial',
+                fontSize: '25px',
+                color: '#ffffff',
+                align: 'center',
+            }
+        ).setOrigin(0.5);
     }
 
 
@@ -100,6 +117,29 @@ class Play extends Phaser.Scene {
         } else {
             this.puppyDirection = 'idle' // Set puppy direction to idle otherwise
         }
+        
+        if(this.checkCollision(this.puppy, this.cursor)) {
+            console.log('puppy touched')
+            this.cursor.reset()
+
+            // increment the tickle count
+            this.tickleCount++
+            this.tickleCountText.setText(`Tickle Count: ${this.tickleCount}`)
+        }
+
+        puppyVector.normalize()
+        if (!this.gameOver) {
+            this.cursor.update()
+        }
+        
+        // check if cursor is 
+        if (this.cursor.y >= game.config.height - 210 && !this.checkCollision(this.puppy, this.cursor)) {
+            this.gameOver = true
+            this.puppy.setVelocityX(0)
+            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60)
+            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45)
+        }
+
         // change scenes
         if (Phaser.Input.Keyboard.JustDown(keyCREDITS)) {
             this.scene.start("creditsScene")
@@ -107,29 +147,13 @@ class Play extends Phaser.Scene {
         if (Phaser.Input.Keyboard.JustDown(keyRESET)) {
             this.scene.start("titleScene")
         }
-        
-        if(this.checkCollision(this.puppy, this.cursor)) {
-            console.log('puppy touched')
-            this.cursor.reset()
-        }
-        puppyVector.normalize()
-        if (!this.gameOver) {
-            this.cursor.update()
-        }
-        if (this.cursor.y >= game.config.height - 210 && !this.checkCollision(this.puppy, this.cursor)) {
-            this.gameOver = true
-            this.puppy.setVelocityX(0)
-            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60)
-            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45)
-            return
-        }
     }
 
     checkCollision(puppy, cursor) {
         if (puppy.x < cursor.x + cursor.width && 
           puppy.x + puppy.width > cursor.x && 
-          puppy.y + 150 < cursor.y + cursor.height &&
-          puppy.height + puppy.y + 150 > cursor.y) {
+          puppy.y + 100 < cursor.y + cursor.height &&
+          puppy.height + puppy.y + 100 > cursor.y) {
           return true
         } else {
           return false

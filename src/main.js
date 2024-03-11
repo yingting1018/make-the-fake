@@ -29,3 +29,6 @@ const middleThirdHeight = game.config.height / 1.5
 const middleThirdStartY = (game.config.height - middleThirdHeight) / 2
 const leftBorderX = 115
 const rightBorderX = game.config.width - 115
+
+const cursorX = 50
+const cursorY = 400

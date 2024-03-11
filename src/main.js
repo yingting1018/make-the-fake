@@ -18,7 +18,7 @@ let config = {
 
 let game = new Phaser.Game(config)
 
-let keySPACE, keyRESET, keyCREDITS, keyUP
+let keySPACE, keyRESET, keyCREDITS, keyUP, keyLEFT, keyRIGHT
 let cursors
 
 // global variables

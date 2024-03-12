@@ -28,7 +28,7 @@ class Play extends Phaser.Scene
         // this.cursor = new Cursor(this, game.config.width/2, game.config.height/2, 'cursor').setOrigin(0.5, 0);
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 2, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5);
         this.gameOver = false;
-
+    
         this.anims.create({
             key: 'idle', 
             frameRate: 0,
@@ -41,8 +41,8 @@ class Play extends Phaser.Scene
     
             this.anims.create({
                 key: 'lay', 
-                frameRate: 5,
-                repeat: -1,
+                frameRate: 1,
+                repeat: 5 * Phaser.Math.MAX_SAFE_INTEGER,
                 frames: this.anims.generateFrameNumbers('puppy', {
                 start: 1,
                 end: 1
@@ -57,6 +57,7 @@ class Play extends Phaser.Scene
                 end: 2
               })
             })
+           
             this.player = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy', 0).setScale(1.5)
               this.player.body.setCollideWorldBounds(true)
               const middleThirdHeight = game.config.height / 1.5;
@@ -83,12 +84,25 @@ class Play extends Phaser.Scene
             if (this.player.x === 214) { // Leftmost position
                 this.moveDirection = 'right'; // Change direction to right
             }
+            break;
     }
-        if (this.player.x >= game.config.width - 115) {
-            this.playerDirection = 'lay'; // Set player direction to lay when at right boundary
-        } else {
-            this.playerDirection = 'idle'; // Set player direction to idle otherwise
-        }
+    if (!this.isLaying && Phaser.Math.Between(1, 100) === 1) {
+        this.player.setVelocityX(0); // Stop the puppy
+        this.player.anims.play('lay', true);
+        this.isLaying = true;
+        this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+                this.player.anims.play('idle', true);
+                if (this.player.anims.play('idle', true))
+                {
+                    this.player.setVelocityX(0);
+                }
+                this.isLaying = false; // Reset laying flag
+            },
+            callbackScope: this
+        });
+    }
         if (Phaser.Input.Keyboard.JustDown(keyCREDITS))
         {
           this.scene.start("creditsScene");
@@ -100,6 +114,7 @@ class Play extends Phaser.Scene
         
         if(this.checkCollision(this.player, this.cursor)) {
             console.log('puppy touched')
+            this.player.anims.play('tummy-pet', true);
             this.cursor.reset()
           }
         playerVector.normalize()
@@ -117,8 +132,8 @@ class Play extends Phaser.Scene
     checkCollision(puppy, cursor) {
         if (puppy.x < cursor.x + cursor.width && 
           puppy.x + puppy.width > cursor.x && 
-          puppy.y + 150 < cursor.y + cursor.height &&
-          puppy.height + puppy.y + 150 > cursor.y) {
+          puppy.y + 100 < cursor.y + cursor.height &&
+          puppy.height + puppy.y + 100 > cursor.y) {
           return true
         } else {
           return false

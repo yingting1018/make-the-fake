@@ -3,6 +3,7 @@ class Play extends Phaser.Scene
     constructor()
     {
         super("playScene")
+        
     };
 
     preload()
@@ -25,7 +26,6 @@ class Play extends Phaser.Scene
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'bg').setOrigin(0, 0);
-        // this.cursor = new Cursor(this, game.config.width/2, game.config.height/2, 'cursor').setOrigin(0.5, 0);
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 2, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5);
         this.gameOver = false;
     
@@ -38,14 +38,31 @@ class Play extends Phaser.Scene
             end: 0
             })
             })
-    
+            this.anims.create({
+                key: 'idle-switch', 
+                frameRate: 0,
+                repeat: -1,
+                frames: this.anims.generateFrameNumbers('puppy', {
+                start: 1,
+                end: 1
+                })
+                })
+                this.anims.create({
+                    key: 'angry', 
+                    frameRate: 0,
+                    repeat: -1,
+                    frames: this.anims.generateFrameNumbers('puppy', {
+                    start: 4,
+                    end: 4
+                    })
+                    })
             this.anims.create({
                 key: 'lay', 
                 frameRate: 1,
                 repeat: 5 * Phaser.Math.MAX_SAFE_INTEGER,
                 frames: this.anims.generateFrameNumbers('puppy', {
-                start: 1,
-                end: 1
+                start: 2,
+                end: 2
                 })
             })
                 this.anims.create({
@@ -53,9 +70,10 @@ class Play extends Phaser.Scene
                 frameRate: 5,
                 repeat: 1,
                 frames: this.anims.generateFrameNumbers('puppy', {
-                start: 1,
-                end: 2
+                start: 2,
+                end: 3
               })
+              
             })
            
             this.player = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy', 0).setScale(1.5)
@@ -68,6 +86,7 @@ class Play extends Phaser.Scene
               this.player.body.setSize(140, 124).setOffset(4, 4)
               cursors = this.input.keyboard.createCursorKeys()
               this.moveDirection = 'right';
+        
     }       
 
     update() {
@@ -77,6 +96,7 @@ class Play extends Phaser.Scene
             this.player.setVelocityX(100); // Move right
             if (this.player.x === 874) { // 874 (rightmost position)
                 this.moveDirection = 'left'; // Change direction to left
+                this.player.anims.play('idle-switch', true);
             }
            break;
         case "left":
@@ -87,22 +107,43 @@ class Play extends Phaser.Scene
             break;
     }
     if (!this.isLaying && Phaser.Math.Between(1, 100) === 1) {
-        this.player.setVelocityX(0); // Stop the puppy
+        this.player.setVelocityX(0);
         this.player.anims.play('lay', true);
         this.isLaying = true;
         this.time.addEvent({
             delay: 1500,
             callback: () => {
-                this.player.anims.play('idle', true);
-                if (this.player.anims.play('idle', true))
-                {
-                    this.player.setVelocityX(0);
+                this.isLaying = false;
+                if (this.moveDirection === 'left') {
+                    this.player.anims.play('idle-switch', true);
+                } else {
+                    this.player.anims.play('idle', true);
                 }
-                this.isLaying = false; // Reset laying flag
+                this.player.setVelocityX(0);
             },
             callbackScope: this
         });
-    }
+        }
+        if (!this.isAngry && Phaser.Math.Between(1, 100) === 1)
+        {
+            this.player.setVelocityX(0);
+            this.player.anims.play('angry', true);
+            this.isAngry = true;
+            this.time.addEvent({
+                delay: 1500,
+                callback: () => {
+                    this.isAngry = false;
+                    if (this.moveDirection === 'left') {
+                        this.player.anims.play('idle-switch', true);
+                    } else {
+                        this.player.anims.play('idle', true);
+                    }
+                    this.player.setVelocityX(0);
+                },
+                callbackScope: this
+            });
+        }
+    
         if (Phaser.Input.Keyboard.JustDown(keyCREDITS))
         {
           this.scene.start("creditsScene");
@@ -112,11 +153,26 @@ class Play extends Phaser.Scene
           this.scene.start("titleScene");
         }
         
-        if(this.checkCollision(this.player, this.cursor)) {
-            console.log('puppy touched')
-            this.player.anims.play('tummy-pet', true);
-            this.cursor.reset()
-          }
+        if (this.checkCollision(this.player, this.cursor)) {
+            // Check if the player is currently playing the 'lay' animation
+            if (this.player.anims.currentAnim && this.player.anims.currentAnim.key === 'lay') {
+                console.log('puppy touched');
+                this.player.anims.play('tummy-pet', true);
+                this.cursor.reset();
+            }
+    
+            // Check if the player is currently playing the 'angry' animation
+            if (this.player.anims.currentAnim && this.player.anims.currentAnim.key === 'angry') {
+                // Perform actions when the player is angry
+                // For example, set game over
+                this.gameOver = true;
+                this.player.setVelocityX(0);
+                this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60);
+                this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45);
+                return;
+            }
+    
+        }
         playerVector.normalize()
         if (!this.gameOver) {
             this.cursor.update();

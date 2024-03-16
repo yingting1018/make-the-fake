@@ -32,46 +32,13 @@ class Play extends Phaser.Scene {
         this.playbg = this.add.tileSprite(0, 0, 1100, 980, 'playbg').setOrigin(0, 0)
 
         this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight)
-        this.physics.world.drawDebug = false
+        this.physics.world.drawDebug = true
         this.gameOver = false
+        this.isLaying = false
+        this.isTickling = false
 
-        // puppy sprite
-        this.puppy = this.physics.add.sprite(game.config.width/2, game.config.height/1.5, 'puppy').setScale(1.5)
-            this.puppy.body.setCollideWorldBounds(true)
-            this.puppy.body.setSize(115, 120).setOffset(12, 4)
 
-            // animation of puppy
-            this.anims.create({
-                key: 'idle', 
-                frameRate: 0,
-                repeat: -1,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                    start: 0,
-                    end: 0
-                })
-            })
-        
-            this.anims.create({
-                key: 'lay', 
-                frameRate: 5,
-                repeat: -1,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                    start: 0,
-                    end: 1
-                })
-            })
-            
-            this.anims.create({
-                key: 'tummy-pet', 
-                frameRate: 5,
-                repeat: -1,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                    start: 1,
-                    end: 2
-                })
-            })
-
-        // cursor sprite
+        this.puppy = new Puppy(this, game.config.width / 2, game.config.height / 1.5, 'puppy')
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
 
         // temp instructions
@@ -89,42 +56,54 @@ class Play extends Phaser.Scene {
                 color: '#ffffff',
                 align: 'center',
             }
-        ).setOrigin(0.5);
+        ).setOrigin(0.5)
     }
-
 
     update() {
         let puppyVector = new Phaser.Math.Vector2(0, 0)
+        this.puppy.update()
 
-        switch (this.moveDirection) {
-            case "right":
-                this.puppy.setVelocityX(150) // Move right
-                if (this.puppy.x >= 890) { // 874 (rightmost position)
-                    this.moveDirection = 'left' // Change direction to left
-                }
-            break
-
-            case "left":
-                this.puppy.setVelocityX(-150) // Move left
-                if (this.puppy.x <= 205) { // Leftmost position
-                    this.moveDirection = 'right' // Change direction to right
-                }
-            break
-        }
-
-        if (this.puppy.x >= game.config.width - 115) {
-            this.puppyDirection = 'lay' // Set puppy direction to lay when at right boundary
-        } else {
-            this.puppyDirection = 'idle' // Set puppy direction to idle otherwise
-        }
+        if (!this.isTickling) {
+            switch (this.moveDirection) {
+                case "right":
+                    this.puppy.setVelocityX(150) // Move right
+                    this.puppy.flipX = false
+                    if (this.puppy.x >= 890) { // 874 (rightmost position)
+                        this.moveDirection = 'left' // Change direction to left
+                    }
+                    break
         
-        if(this.checkCollision(this.puppy, this.cursor)) {
-            console.log('puppy touched')
+                case "left":
+                    this.puppy.setVelocityX(-150) // Move left
+                    this.puppy.flipX = true
+                    if (this.puppy.x <= 205) { // Leftmost position
+                        this.moveDirection = 'right' // Change direction to right
+                    }
+                    break
+            }
+        }
+
+        if (!this.isTickling && this.checkCollision(this.puppy, this.cursor)) {
+            this.isTickling = true
+            this.puppy.setVelocityX(0)
+            this.puppy.anims.play('tummy-pet', true)
             this.cursor.reset()
 
-            // increment the tickle count
+            // Increment the tickle count
             this.tickleCount++
             this.tickleCountText.setText(`Tickle Count: ${this.tickleCount}`)
+
+            
+            this.time.addEvent({
+                delay: 1000,
+                callback: () => {
+                    this.puppy.anims.play('idle', true)
+                    this.puppy.setVelocityX(150)
+                    this.isTickling = false
+                },
+                callbackScope: this,
+                loop: false
+            })
         }
 
         puppyVector.normalize()
@@ -132,7 +111,7 @@ class Play extends Phaser.Scene {
             this.cursor.update()
         }
         
-        // check if cursor is 
+        // Check if cursor is off screen
         if (this.cursor.y >= game.config.height - 210 && !this.checkCollision(this.puppy, this.cursor)) {
             this.gameOver = true
             this.puppy.setVelocityX(0)
@@ -140,7 +119,7 @@ class Play extends Phaser.Scene {
             this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45)
         }
 
-        // change scenes
+        // Change scenes
         if (Phaser.Input.Keyboard.JustDown(keyCREDITS)) {
             this.scene.start("creditsScene")
         }

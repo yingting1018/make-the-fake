@@ -3,9 +3,11 @@ class Cursor extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, frame)
 
         scene.add.existing(this)
+
         this.isColliding = false
         this.moveSpeed = 4
         this.spaceKeyIsDown = false
+        this.setScale(1.5)
     }
     
     update() {

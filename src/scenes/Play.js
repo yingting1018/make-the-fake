@@ -13,6 +13,10 @@ class Play extends Phaser.Scene {
             frameWidth: 67,
             frameHeight: 91
         })
+        this.load.spritesheet('heartscore', './assets/img/heartscore.png', {
+            frameWidth: 30,
+            frameHeight: 30
+        })
     }
 
     create() {
@@ -40,29 +44,18 @@ class Play extends Phaser.Scene {
 
         this.puppy = new Puppy(this, game.config.width / 2, game.config.height / 1.5, 'puppy')
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
+        this.heartscore = new Heartscore(this, game.config.width / 2, game.config.height / 12 + 100, 'heartscore')
 
         // temp instructions
-        this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
-
-        // tickle counter
-        this.tickleCount = 0
-        this.tickleCountText = this.add.text(
-            game.config.width / 2,
-            game.config.height / 12,
-            'Tickle Count: 0',
-            {
-                fontFamily: 'Arial',
-                fontSize: '25px',
-                color: '#ffffff',
-                align: 'center',
-            }
-        ).setOrigin(0.5)
+        // this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
     }
 
     update() {
         let puppyVector = new Phaser.Math.Vector2(0, 0)
         this.puppy.update()
 
+
+        // Puppy movement
         if (!this.isTickling) {
             switch (this.moveDirection) {
                 case "right":
@@ -83,15 +76,15 @@ class Play extends Phaser.Scene {
             }
         }
 
+        // When puppy is being tickled/collision
         if (!this.isTickling && this.checkCollision(this.puppy, this.cursor)) {
             this.isTickling = true
             this.puppy.setVelocityX(0)
             this.puppy.anims.play('tummy-pet', true)
             this.cursor.reset()
 
-            // Increment the tickle count
-            this.tickleCount++
-            this.tickleCountText.setText(`Tickle Count: ${this.tickleCount}`)
+            // Increment the heartscore
+            this.heartscore.anims.play('filling-heart', true)
 
             
             this.time.addEvent({

@@ -44,7 +44,7 @@ class Play extends Phaser.Scene {
 
         this.puppy = new Puppy(this, game.config.width / 2, game.config.height / 1.5, 'puppy')
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
-        this.heartscore = new Heartscore(this, game.config.width / 2, game.config.height / 12 + 100, 'heartscore')
+        this.heartscore = new Heartscore(this, game.config.width / 5.5, game.config.height / 12 + 100, 'heartscore')
 
         // temp instructions
         // this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)

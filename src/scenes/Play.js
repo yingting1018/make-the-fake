@@ -105,7 +105,7 @@ class Play extends Phaser.Scene {
         }
         
         // Check if cursor is off screen
-        if (this.cursor.y >= game.config.height - 210 && !this.checkCollision(this.puppy, this.cursor)) {
+        if (this.cursor.y >= game.config.height - 250 && !this.checkCollision(this.puppy, this.cursor)) {
             this.gameOver = true
             this.puppy.setVelocityX(0)
             this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60)
@@ -122,13 +122,13 @@ class Play extends Phaser.Scene {
     }
 
     checkCollision(puppy, cursor) {
-        if (puppy.x < cursor.x + cursor.width && 
-          puppy.x + puppy.width > cursor.x && 
-          puppy.y + 100 < cursor.y + cursor.height &&
-          puppy.height + puppy.y + 100 > cursor.y) {
-          return true
-        } else {
-          return false
-        }
+        const puppyBounds = puppy.getBounds()
+        const cursorBounds = cursor.getBounds()
+
+        const cursorX = cursorBounds.x + cursorBounds.width
+        const cursorY = cursorBounds.y + cursorBounds.height - 175
+
+
+        return puppyBounds.contains(cursorX, cursorY)
     }
 }

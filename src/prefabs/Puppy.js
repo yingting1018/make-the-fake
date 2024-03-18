@@ -7,7 +7,13 @@ class Puppy extends Phaser.Physics.Arcade.Sprite {
 
         this.setScale(1.5)
         this.body.setCollideWorldBounds(true)
-        this.body.setSize(115, 120).setOffset(12, 4)
+        this.body.setSize(115, 100).setOffset(12, 4)
+
+        // ticklespot
+        this.ticklespot = scene.add.rectangle(x, y, 60, 30)
+        scene.physics.add.existing(this.ticklespot)
+        this.ticklespot.body.setCollideWorldBounds(true)
+        this.ticklespot.body.setSize(70, 10).setOffset(-45, 60)
 
         // Animations for the puppy
         scene.anims.create({
@@ -36,6 +42,14 @@ class Puppy extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        // Add any specific update logic for the puppy here
+        // Follows the puppy (hitbox/ticklespot)
+        this.ticklespot.x = this.x
+        this.ticklespot.y = this.y
+
+        if (this.flipX) {
+            this.ticklespot.setPosition(this.x + 85, this.y);
+        } else {
+            this.ticklespot.setPosition(this.x -5, this.y);
+        }
     }
 }

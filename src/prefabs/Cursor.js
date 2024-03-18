@@ -7,12 +7,11 @@ class Cursor extends Phaser.GameObjects.Sprite {
 
         this.setScale(1.5)
         this.body.setCollideWorldBounds(true)
-        this.body.setSize(20, 50).setOffset(35, 40)
+        this.body.setSize(20, 30).setOffset(35, 60)
 
         this.isColliding = false
         this.moveSpeed = 4
         this.spaceKeyIsDown = false
-
 
     }
     

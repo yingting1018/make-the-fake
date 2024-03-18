@@ -44,7 +44,9 @@ class Play extends Phaser.Scene {
 
         this.puppy = new Puppy(this, game.config.width / 2, game.config.height / 1.5, 'puppy')
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
-        this.heartscore = new Heartscore(this, game.config.width / 5.5, game.config.height / 12 + 100, 'heartscore')
+        
+        this.heartscore = new Heartscore(this, game.config.width / 4, game.config.height / 12 + 100, 'heartscore')
+        this.heartscore.addHearts(3)
 
         // temp instructions
         // this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
@@ -84,8 +86,7 @@ class Play extends Phaser.Scene {
             this.cursor.reset()
 
             // Increment the heartscore
-            this.heartscore.anims.play('filling-heart', true)
-
+            this.heartscore.ticklePuppy()
             
             this.time.addEvent({
                 delay: 1000,
@@ -127,7 +128,6 @@ class Play extends Phaser.Scene {
 
         const cursorX = cursorBounds.x + cursorBounds.width
         const cursorY = cursorBounds.y + cursorBounds.height - 175
-
 
         return puppyBounds.contains(cursorX, cursorY)
     }

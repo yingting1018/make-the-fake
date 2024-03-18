@@ -47,9 +47,9 @@ class Puppy extends Phaser.Physics.Arcade.Sprite {
         this.ticklespot.y = this.y
 
         if (this.flipX) {
-            this.ticklespot.setPosition(this.x + 85, this.y);
+            this.ticklespot.setPosition(this.x + 85, this.y)
         } else {
-            this.ticklespot.setPosition(this.x -5, this.y);
+            this.ticklespot.setPosition(this.x -5, this.y)
         }
     }
 }

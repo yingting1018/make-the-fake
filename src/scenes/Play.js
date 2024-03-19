@@ -3,7 +3,7 @@ class Play extends Phaser.Scene {
         super("playScene")
         this.ticklespotCollisions = 0 // Track ticklespot collisions
         this.tummyBonusActive = false // Track if tummy bonus is active
-        this.tummyBonusDuration = 8000
+        this.tummyBonusDuration = 5000
     }
 
     preload() {
@@ -44,7 +44,7 @@ class Play extends Phaser.Scene {
         this.playbg = this.add.tileSprite(0, 0, 1100, 980, 'playbg').setOrigin(0, 0)
 
         this.physics.world.setBounds(leftBorderX, middleThirdStartY, rightBorderX - leftBorderX, middleThirdHeight)
-        this.physics.world.drawDebug = true
+        this.physics.world.drawDebug = false
         this.gameOver = false
         this.isLaying = false
         this.isTickling = false
@@ -78,7 +78,7 @@ class Play extends Phaser.Scene {
             this.scoreConfig
         ).setOrigin(0.5).setFontSize(20)
         this.time.delayedCall(5000, () => {
-            instructionText.destroy(); // Remove the text from the scene
+            instructionText.destroy() // Remove the text from the scene
         })
     }
 
@@ -124,7 +124,11 @@ class Play extends Phaser.Scene {
                 // Increment the heartscore/counter
                 this.heartscore.ticklePuppy()
 
-                this.heartCounter++
+                if (this.tummyBonusActive) {
+                    this.heartCounter += 3
+                } else {
+                    this.heartCounter++
+                }
                 this.updateHeartCounterText()
 
                 this.time.addEvent({
@@ -145,45 +149,45 @@ class Play extends Phaser.Scene {
         // Check collision between ticklespot and cursor that'll trigger tummy bonus
         if (!this.isTickling && this.checkticklespot(this.puppy.ticklespot, this.cursor)) {
             if (!this.puppy.isAngry) {
-                this.isTickling = true;
-                this.puppy.setVelocityX(0);
-                this.puppy.anims.play('tummy-pet', true);
+                this.isTickling = true
+                this.puppy.setVelocityX(0)
+                this.puppy.anims.play('tummy-pet', true)
                 
-                this.cursor.moveSpeed = 0;
+                this.cursor.moveSpeed = 0
     
                 this.sound.play('tickle')
 
                 // Increment the heartscore/counter
-                this.heartscore.ticklePuppy();
+                this.heartscore.ticklePuppy()
     
-                this.ticklespotCollisions++;
-                console.log("Ticklespot Collisions:", this.ticklespotCollisions); // Debug log
+                this.ticklespotCollisions++
+                console.log("Ticklespot Collisions:", this.ticklespotCollisions) // Debug log
 
                 if (this.ticklespotCollisions >= 2 && !this.tummyBonusActive) {
                     console.log('activating tummy bonus')
-                    this.activateTummyBonus();
+                    this.activateTummyBonus()
                 }
     
-                this.heartCounter++;
-                this.updateHeartCounterText();
+                this.heartCounter++
+                this.updateHeartCounterText()
                     
                 // Reset ticklespotCollisions counter
                 this.time.delayedCall(2000, () => {
-                    this.ticklespotCollisions = 0;
-                }, [], this);
+                    this.ticklespotCollisions = 0
+                }, [], this)
     
                 this.time.addEvent({
                     delay: 1000,
                     callback: () => {
-                        this.puppy.anims.play('idle', true);
-                        this.puppy.setVelocityX(150);
-                        this.isTickling = false;
-                        this.cursor.reset();
-                        this.cursor.moveSpeed = 4;
+                        this.puppy.anims.play('idle', true)
+                        this.puppy.setVelocityX(150)
+                        this.isTickling = false
+                        this.cursor.reset()
+                        this.cursor.moveSpeed = 4
                     },
                     callbackScope: this,
                     loop: false
-                });
+                })
             }
         }
 
@@ -215,21 +219,21 @@ class Play extends Phaser.Scene {
             this.scene.start("creditsScene")
         }
         if (Phaser.Input.Keyboard.JustDown(keyRESET)) {
-            this.ticklespotCollisions = 0;
-            this.tummyBonusActive = false;
-            this.heartCounter = 0;
-            this.updateHeartCounterText();
+            this.ticklespotCollisions = 0
+            this.tummyBonusActive = false
+            this.heartCounter = 0
+            this.updateHeartCounterText()
     
             // Reset puppy state
-            this.puppy.isAngry = false;
-            this.puppy.anims.play('idle', true);
+            this.puppy.isAngry = false
+            this.puppy.anims.play('idle', true)
     
             // Reset cursor state
-            this.cursor.reset();
-            this.cursor.moveSpeed = 4;
+            this.cursor.reset()
+            this.cursor.moveSpeed = 4
     
             // Reset game over state
-            this.gameOver = false;
+            this.gameOver = false
 
             this.scene.start("titleScene")
         }
@@ -246,13 +250,13 @@ class Play extends Phaser.Scene {
     }
 
     checkticklespot(ticklespot, cursor) {
-        const ticklespotBounds = ticklespot.getBounds();
-        const cursorBounds = cursor.getBounds();
+        const ticklespotBounds = ticklespot.getBounds()
+        const cursorBounds = cursor.getBounds()
 
-        const cursorX = cursorBounds.x + cursorBounds.width;
+        const cursorX = cursorBounds.x + cursorBounds.width
         const cursorY = cursorBounds.y + cursorBounds.height - 65
     
-        return ticklespotBounds.contains(cursorX, cursorY);
+        return ticklespotBounds.contains(cursorX, cursorY)
     }
 
     updateHeartCounterText() {
@@ -289,30 +293,24 @@ class Play extends Phaser.Scene {
 
     activateTummyBonus() {
         // Set tummy bonus active
-        this.tummyBonusActive = true;
+        this.tummyBonusActive = true
 
         this.sound.play('bonussfx')
 
         // Display tummy bonus sprite
         this.tummyBonusSprite = this.add.image(game.config.width / 2, game.config.height / 3.5, 'tummybonustext').setScale(1.5)
-        this.tummyBonusSprite.setOrigin(0.5);
+        this.tummyBonusSprite.setOrigin(0.5)
 
-        // Apply tummy bonus effect
-        this.heartCounter += 3
-        this.updateHeartCounterText()
-
-        this.time.delayedCall(this.tummyBonusDuration, this.deactivateTummyBonus, [], this);
+        this.time.delayedCall(this.tummyBonusDuration, this.deactivateTummyBonus, [], this)
 
         this.ticklespotCollisions = 0
     }
 
     deactivateTummyBonus() {
         // Remove tummy bonus sprite
-        this.tummyBonusSprite.destroy();
+        this.tummyBonusSprite.destroy()
 
         // Reset tummy bonus state
-        this.tummyBonusActive = false;
-        this.heartCounter -= 2
-        this.updateHeartCounterText()
+        this.tummyBonusActive = false
     }
 }

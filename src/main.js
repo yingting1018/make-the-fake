@@ -1,6 +1,6 @@
 // Vivian Kim & Yingting Huang
 // Phaser's major components
-// Physics system, text objects, animation manager, timers, 
+// Physics system, text objects, animation manager, timers, game events (gameOver, tummyBonus, angryMOde, etc.), audio
 
 'use strict'
 

@@ -44,9 +44,4 @@ class Heartscore extends Phaser.Physics.Arcade.Sprite {
             this.hearts.push(heart)
         }
     }
-
-    setHeartsPerTick(hearts) {
-        // Set hearts per tick to the specified value
-        this.heartsPerTick = hearts;
-    }
 }

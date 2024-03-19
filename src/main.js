@@ -1,3 +1,7 @@
+// Vivian Kim & Yingting Huang
+// Phaser's major components
+// Physics system, text objects, animation manager, timers, 
+
 'use strict'
 
 let config = {

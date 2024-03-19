@@ -1,12 +1,16 @@
 class Play extends Phaser.Scene {
     constructor() {
         super("playScene")
-        this.ticklespotCollisions = 0; // Track ticklespot collisions
-        this.tummyBonusActive = false; // Track if tummy bonus is active
-        this.tummyBonusDuration = 8000;
+        this.ticklespotCollisions = 0 // Track ticklespot collisions
+        this.tummyBonusActive = false // Track if tummy bonus is active
+        this.tummyBonusDuration = 8000
     }
 
     preload() {
+        this.load.audio('gameover', './assets/audio/gameover.wav')
+        this.load.audio('puppy', './assets/audio/puppy.wav')
+        this.load.audio('tickle', './assets/audio/tickle.wav')
+        this.load.audio('bonussfx', './assets/audio/bonussfx.mp3')
         this.load.image('playbg', './assets/img/playbg.png')
         this.load.spritesheet('puppy', './assets/img/puppy.png', {
             frameWidth: 140,
@@ -45,7 +49,6 @@ class Play extends Phaser.Scene {
         this.isLaying = false
         this.isTickling = false
 
-
         this.puppy = new Puppy(this, game.config.width / 2, game.config.height / 1.5, 'puppy')
         this.cursor = new Cursor(this, game.config.width / 2, game.config.height / 3, 'cursor', keyLEFT, keyRIGHT).setOrigin(0.5, 0.5)
         
@@ -68,7 +71,15 @@ class Play extends Phaser.Scene {
             loop: true
         })
         // temp instructions
-        // this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
+        const instructionText = this.add.text(
+            game.config.width / 1.5,
+            game.config.height / 12 + 100,
+            'Press arrow keys to move &\nspace to tickle the puppy',
+            this.scoreConfig
+        ).setOrigin(0.5).setFontSize(20)
+        this.time.delayedCall(5000, () => {
+            instructionText.destroy(); // Remove the text from the scene
+        })
     }
 
     update() {
@@ -108,6 +119,8 @@ class Play extends Phaser.Scene {
                 
                 this.cursor.moveSpeed = 0
 
+                this.sound.play('puppy')
+
                 // Increment the heartscore/counter
                 this.heartscore.ticklePuppy()
 
@@ -138,6 +151,8 @@ class Play extends Phaser.Scene {
                 
                 this.cursor.moveSpeed = 0;
     
+                this.sound.play('tickle')
+
                 // Increment the heartscore/counter
                 this.heartscore.ticklePuppy();
     
@@ -181,6 +196,7 @@ class Play extends Phaser.Scene {
         if (!this.gameOver) {
             if (this.cursor.y >= game.config.height - 250 && !this.checkCollision(this.puppy, this.cursor)) {
                 this.gameOver = true
+                this.sound.play('gameover')
                 this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60).setBackgroundColor('#fb67df')
                 this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Keep tickling the puppy!\nPress (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(30).setBackgroundColor('#fb67df')
 
@@ -188,6 +204,7 @@ class Play extends Phaser.Scene {
             if (this.puppy.isAngry && this.checkCollision(this.puppy, this.cursor)) {
                 this.puppy.setVelocityX(0)
                 this.gameOver = true
+                this.sound.play('gameover')
                 this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60).setBackgroundColor('#fb67df')
                 this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Do not tickle the puppy when angry!\nPress (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(30).setBackgroundColor('#fb67df')
             }
@@ -198,6 +215,22 @@ class Play extends Phaser.Scene {
             this.scene.start("creditsScene")
         }
         if (Phaser.Input.Keyboard.JustDown(keyRESET)) {
+            this.ticklespotCollisions = 0;
+            this.tummyBonusActive = false;
+            this.heartCounter = 0;
+            this.updateHeartCounterText();
+    
+            // Reset puppy state
+            this.puppy.isAngry = false;
+            this.puppy.anims.play('idle', true);
+    
+            // Reset cursor state
+            this.cursor.reset();
+            this.cursor.moveSpeed = 4;
+    
+            // Reset game over state
+            this.gameOver = false;
+
             this.scene.start("titleScene")
         }
     }
@@ -227,7 +260,7 @@ class Play extends Phaser.Scene {
     }
     
     activateAngryMode() {
-       if (!this.isTickling) {
+       if (!this.isTickling && !this.tummyBonusActive) {
             // Set the puppy to angry mode
             this.puppy.isAngry = true
             this.puppy.anims.play('angry', true)
@@ -258,12 +291,16 @@ class Play extends Phaser.Scene {
         // Set tummy bonus active
         this.tummyBonusActive = true;
 
+        this.sound.play('bonussfx')
+
         // Display tummy bonus sprite
-        this.tummyBonusSprite = this.add.image(game.config.width / 2, game.config.height / 2, 'tummybonustext');
+        this.tummyBonusSprite = this.add.image(game.config.width / 2, game.config.height / 3.5, 'tummybonustext').setScale(1.5)
         this.tummyBonusSprite.setOrigin(0.5);
 
         // Apply tummy bonus effect
-        this.heartscore.setHeartsPerTick(3); // Increase hearts per tick during tummy bonus
+        this.heartCounter += 3
+        this.updateHeartCounterText()
+
         this.time.delayedCall(this.tummyBonusDuration, this.deactivateTummyBonus, [], this);
 
         this.ticklespotCollisions = 0
@@ -275,9 +312,7 @@ class Play extends Phaser.Scene {
 
         // Reset tummy bonus state
         this.tummyBonusActive = false;
-        this.ticklespotCollisions = 0; // Reset ticklespot collisions counter
-
-        // Resume normal gameplay
-        this.heartscore.setHeartsPerTick(1); // Reset hearts per tick to normal
+        this.heartCounter -= 2
+        this.updateHeartCounterText()
     }
 }

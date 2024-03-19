@@ -12,7 +12,6 @@ class Cursor extends Phaser.GameObjects.Sprite {
         this.isColliding = false
         this.moveSpeed = 4
         this.spaceKeyIsDown = false
-
     }
     
     update() {

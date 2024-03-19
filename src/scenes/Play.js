@@ -1,6 +1,9 @@
 class Play extends Phaser.Scene {
     constructor() {
         super("playScene")
+        this.ticklespotCollisions = 0; // Track ticklespot collisions
+        this.tummyBonusActive = false; // Track if tummy bonus is active
+        this.tummyBonusDuration = 8000;
     }
 
     preload() {
@@ -110,7 +113,7 @@ class Play extends Phaser.Scene {
 
                 this.heartCounter++
                 this.updateHeartCounterText()
-                
+
                 this.time.addEvent({
                     delay: 1000,
                     callback: () => {
@@ -123,6 +126,49 @@ class Play extends Phaser.Scene {
                     callbackScope: this,
                     loop: false
                 })
+            }
+        }
+
+        // Check collision between ticklespot and cursor that'll trigger tummy bonus
+        if (!this.isTickling && this.checkticklespot(this.puppy.ticklespot, this.cursor)) {
+            if (!this.puppy.isAngry) {
+                this.isTickling = true;
+                this.puppy.setVelocityX(0);
+                this.puppy.anims.play('tummy-pet', true);
+                
+                this.cursor.moveSpeed = 0;
+    
+                // Increment the heartscore/counter
+                this.heartscore.ticklePuppy();
+    
+                this.ticklespotCollisions++;
+                console.log("Ticklespot Collisions:", this.ticklespotCollisions); // Debug log
+
+                if (this.ticklespotCollisions >= 2 && !this.tummyBonusActive) {
+                    console.log('activating tummy bonus')
+                    this.activateTummyBonus();
+                }
+    
+                this.heartCounter++;
+                this.updateHeartCounterText();
+                    
+                // Reset ticklespotCollisions counter
+                this.time.delayedCall(2000, () => {
+                    this.ticklespotCollisions = 0;
+                }, [], this);
+    
+                this.time.addEvent({
+                    delay: 1000,
+                    callback: () => {
+                        this.puppy.anims.play('idle', true);
+                        this.puppy.setVelocityX(150);
+                        this.isTickling = false;
+                        this.cursor.reset();
+                        this.cursor.moveSpeed = 4;
+                    },
+                    callbackScope: this,
+                    loop: false
+                });
             }
         }
 
@@ -161,33 +207,45 @@ class Play extends Phaser.Scene {
         const cursorBounds = cursor.getBounds()
 
         const cursorX = cursorBounds.x + cursorBounds.width
-        const cursorY = cursorBounds.y + cursorBounds.height - 150
+        const cursorY = cursorBounds.y + cursorBounds.height - 160
 
         return puppyBounds.contains(cursorX, cursorY)
+    }
+
+    checkticklespot(ticklespot, cursor) {
+        const ticklespotBounds = ticklespot.getBounds();
+        const cursorBounds = cursor.getBounds();
+
+        const cursorX = cursorBounds.x + cursorBounds.width;
+        const cursorY = cursorBounds.y + cursorBounds.height - 65
+    
+        return ticklespotBounds.contains(cursorX, cursorY);
     }
 
     updateHeartCounterText() {
         this.heartCounterText.setText(`Hearts Ticked: ${this.heartCounter}`)
     }
-
+    
     activateAngryMode() {
-        // Set the puppy to angry mode
-        this.puppy.isAngry = true
-        this.puppy.anims.play('angry', true)
-
-        // Set a timer to return the puppy to normal state after 3 to 5 seconds
-        const duration = Phaser.Math.Between(3000, 5000) // Random duration between 3 to 5 seconds
-        this.time.addEvent({
-            delay: duration,
-            callback: this.deactivateAngryMode,
-            callbackScope: this
-        })
-
-        this.time.addEvent({
-            delay: Phaser.Math.Between(10000, 20000),
-            callback: this.activateAngryMode,
-            callbackScope: this
-        })
+       if (!this.isTickling) {
+            // Set the puppy to angry mode
+            this.puppy.isAngry = true
+            this.puppy.anims.play('angry', true)
+    
+            // Set a timer to return the puppy to normal state after 3 to 5 seconds
+            const duration = Phaser.Math.Between(2000, 5000) // Random duration between 3 to 5 seconds
+            this.time.addEvent({
+                delay: duration,
+                callback: this.deactivateAngryMode,
+                callbackScope: this
+            })
+    
+            this.time.addEvent({
+                delay: Phaser.Math.Between(10000, 20000),
+                callback: this.activateAngryMode,
+                callbackScope: this
+            })
+       }
     }
 
     deactivateAngryMode() {
@@ -196,4 +254,30 @@ class Play extends Phaser.Scene {
         this.puppy.anims.play('idle', true)
     }
 
+    activateTummyBonus() {
+        // Set tummy bonus active
+        this.tummyBonusActive = true;
+
+        // Display tummy bonus sprite
+        this.tummyBonusSprite = this.add.image(game.config.width / 2, game.config.height / 2, 'tummybonustext');
+        this.tummyBonusSprite.setOrigin(0.5);
+
+        // Apply tummy bonus effect
+        this.heartscore.setHeartsPerTick(3); // Increase hearts per tick during tummy bonus
+        this.time.delayedCall(this.tummyBonusDuration, this.deactivateTummyBonus, [], this);
+
+        this.ticklespotCollisions = 0
+    }
+
+    deactivateTummyBonus() {
+        // Remove tummy bonus sprite
+        this.tummyBonusSprite.destroy();
+
+        // Reset tummy bonus state
+        this.tummyBonusActive = false;
+        this.ticklespotCollisions = 0; // Reset ticklespot collisions counter
+
+        // Resume normal gameplay
+        this.heartscore.setHeartsPerTick(1); // Reset hearts per tick to normal
+    }
 }

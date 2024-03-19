@@ -37,44 +37,52 @@ class Play extends Phaser.Scene
             start: 0,
             end: 0
             })
+        })
+        this.anims.create({
+            key: 'idle-switch', 
+            frameRate: 0,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers('puppy', {
+            start: 1,
+            end: 1
             })
+        })
+        this.anims.create({
+            key: 'angry', 
+            frameRate: 0,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers('puppy', {
+            start: 5,
+            end: 5
+            })
+        })
+        this.anims.create({
+            key: 'angry-switch', 
+            frameRate: 0,
+            repeat: -1,
+            frames: this.anims.generateFrameNumbers('puppy', {
+            start: 4,
+            end: 4
+            })
+        })       
+        this.anims.create({
+            key: 'lay', 
+            frameRate: 1,
+            repeat: 5 * Phaser.Math.MAX_SAFE_INTEGER,
+            frames: this.anims.generateFrameNumbers('puppy', {
+            start: 2,
+            end: 2
+            })
+        })
             this.anims.create({
-                key: 'idle-switch', 
-                frameRate: 0,
-                repeat: -1,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                start: 1,
-                end: 1
-                })
-                })
-                this.anims.create({
-                    key: 'angry', 
-                    frameRate: 0,
-                    repeat: -1,
-                    frames: this.anims.generateFrameNumbers('puppy', {
-                    start: 4,
-                    end: 4
-                    })
-                    })
-            this.anims.create({
-                key: 'lay', 
-                frameRate: 1,
-                repeat: 5 * Phaser.Math.MAX_SAFE_INTEGER,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                start: 2,
-                end: 2
-                })
-            })
-                this.anims.create({
-                key: 'tummy-pet', 
-                frameRate: 5,
-                repeat: 1,
-                frames: this.anims.generateFrameNumbers('puppy', {
-                start: 2,
-                end: 3
-              })
-              
-            })
+            key: 'tummy-pet', 
+            frameRate: 5,
+            repeat: 1,
+            frames: this.anims.generateFrameNumbers('puppy', {
+            start: 2,
+            end: 3
+            }) 
+         })
            
             this.player = this.physics.add.sprite(game.config.width/2, game.config.height*30, 'puppy', 0).setScale(1.5)
               this.player.body.setCollideWorldBounds(true)
@@ -106,7 +114,7 @@ class Play extends Phaser.Scene
             }
             break;
     }
-    if (!this.isLaying && Phaser.Math.Between(1, 100) === 1) {
+    if (!this.isLaying && Phaser.Math.Between(1, 75) === 1) {
         this.player.setVelocityX(0);
         this.player.anims.play('lay', true);
         this.isLaying = true;
@@ -126,9 +134,17 @@ class Play extends Phaser.Scene
         }
         if (!this.isAngry && Phaser.Math.Between(1, 100) === 1)
         {
-            this.player.setVelocityX(0);
-            this.player.anims.play('angry', true);
-            this.isAngry = true;
+            if (this.moveDirection === 'right') {
+                this.player.setVelocityX(0);
+                this.player.anims.play('angry-switch', true);
+                this.isAngry = true;
+            }
+            else {
+                this.player.setVelocityX(0);
+                this.player.anims.play('angry', true);
+                this.isAngry = true;
+            }
+            
             this.time.addEvent({
                 delay: 1500,
                 callback: () => {
@@ -154,25 +170,20 @@ class Play extends Phaser.Scene
         }
         
         if (this.checkCollision(this.player, this.cursor)) {
-            // Check if the player is currently playing the 'lay' animation
             if (this.player.anims.currentAnim && this.player.anims.currentAnim.key === 'lay') {
-                console.log('puppy touched');
                 this.player.anims.play('tummy-pet', true);
                 this.cursor.reset();
-            }
-    
-            // Check if the player is currently playing the 'angry' animation
+        }
+        this.player.update();
             if (this.player.anims.currentAnim && this.player.anims.currentAnim.key === 'angry') {
-                // Perform actions when the player is angry
-                // For example, set game over
                 this.gameOver = true;
                 this.player.setVelocityX(0);
                 this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60);
                 this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45);
                 return;
-            }
-    
         }
+    
+    }
         playerVector.normalize()
         if (!this.gameOver) {
             this.cursor.update();

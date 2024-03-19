@@ -24,8 +24,10 @@ class Credits extends Phaser.Scene {
         this.sprite = this.add.tileSprite(0, 0, 1100, 980, 'credsbg').setOrigin(0, 0);
         this.add.text(game.config.width/2, game.config.height/3 - borderUIsize - borderPadding, 'CREDITS:', creditsConfig).setOrigin(0.5).setScale(2);
         this.add.text(game.config.width/2, game.config.height/2.9, 'Art created by Vivian Kim & Yingting Huang', creditsConfig).setOrigin(0.5);
-        this.add.text(game.config.width/2, game.config.height/2.5, 'Starting Sound:', creditsConfig).setOrigin(0.5);
-        this.add.text(game.config.width/2, game.config.height/2.3, 'https://freesound.org/people/Seth_Makes_Sounds/sounds/685123/', creditsConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2.55, 'UX/UI design by Vivian Kim', creditsConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2.3, 'Programming by Vivian Kim & Yingting Huang', creditsConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2, 'Starting Sound:', creditsConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/1.8, 'https://freesound.org/people/Seth_Makes_Sounds/sounds/685123/', creditsConfig).setOrigin(0.5);
         this.add.text(game.config.width/2, game.config.height/1.36, 'PRESS UP KEY TO PLAY AGAIN', creditsConfig).setOrigin(0.5);
         this.add.text(game.config.width/2, game.config.height/1.3, 'Thank you for playing! <3', creditsConfig).setOrigin(0.5);
        

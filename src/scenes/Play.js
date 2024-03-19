@@ -17,6 +17,7 @@ class Play extends Phaser.Scene {
             frameWidth: 30,
             frameHeight: 30
         })
+        this.load.image('tummybonustext', './assets/img/tummybonus.png')
     }
 
     create() {
@@ -48,6 +49,21 @@ class Play extends Phaser.Scene {
         this.heartscore = new Heartscore(this, game.config.width / 4, game.config.height / 12 + 100, 'heartscore')
         this.heartscore.addHearts(3)
 
+        // Score/HeartCounter
+        this.heartCounter = 0
+        this.heartCounterText = this.add.text(
+            game.config.width / 6, 
+            game.config.height / 12 + 150, 
+            `Hearts Ticked: ${this.heartCounter}`,
+            { fontFamily: 'Arial', fontSize: 24, color: '#ffffff' }
+        )
+        
+        this.time.addEvent( {
+            delay: Phaser.Math.Between(10000, 20000),
+            callback: this.activateAngryMode,
+            callbackScope: this,
+            loop: true
+        })
         // temp instructions
         // this.add.text(game.config.width / 2, game.config.height / 12 + 100, 'Press arrow keys to move and space to tickle the puppy', this.scoreConfig).setOrigin(0.5).setFontSize(25)
     }
@@ -58,7 +74,7 @@ class Play extends Phaser.Scene {
 
 
         // Puppy movement
-        if (!this.isTickling) {
+        if (!this.isTickling && !this.gameOver) {
             switch (this.moveDirection) {
                 case "right":
                     this.puppy.setVelocityX(150) // Move right
@@ -76,28 +92,38 @@ class Play extends Phaser.Scene {
                     }
                     break
             }
+        } else {
+            this.puppy.setVelocity(0)
         }
 
         // When puppy is being tickled/collision
         if (!this.isTickling && this.checkCollision(this.puppy, this.cursor)) {
-            this.isTickling = true
-            this.puppy.setVelocityX(0)
-            this.puppy.anims.play('tummy-pet', true)
-            this.cursor.reset()
+            if (!this.puppy.isAngry) {
+                this.isTickling = true
+                this.puppy.setVelocityX(0)
+                this.puppy.anims.play('tummy-pet', true)
+                
+                this.cursor.moveSpeed = 0
 
-            // Increment the heartscore
-            this.heartscore.ticklePuppy()
-            
-            this.time.addEvent({
-                delay: 1000,
-                callback: () => {
-                    this.puppy.anims.play('idle', true)
-                    this.puppy.setVelocityX(150)
-                    this.isTickling = false
-                },
-                callbackScope: this,
-                loop: false
-            })
+                // Increment the heartscore/counter
+                this.heartscore.ticklePuppy()
+
+                this.heartCounter++
+                this.updateHeartCounterText()
+                
+                this.time.addEvent({
+                    delay: 1000,
+                    callback: () => {
+                        this.puppy.anims.play('idle', true)
+                        this.puppy.setVelocityX(150)
+                        this.isTickling = false
+                        this.cursor.reset()
+                        this.cursor.moveSpeed = 4
+                    },
+                    callbackScope: this,
+                    loop: false
+                })
+            }
         }
 
         puppyVector.normalize()
@@ -106,11 +132,19 @@ class Play extends Phaser.Scene {
         }
         
         // Check if cursor is off screen
-        if (this.cursor.y >= game.config.height - 250 && !this.checkCollision(this.puppy, this.cursor)) {
-            this.gameOver = true
-            this.puppy.setVelocityX(0)
-            this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60)
-            this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Press (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(45)
+        if (!this.gameOver) {
+            if (this.cursor.y >= game.config.height - 250 && !this.checkCollision(this.puppy, this.cursor)) {
+                this.gameOver = true
+                this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60).setBackgroundColor('#fb67df')
+                this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Keep tickling the puppy!\nPress (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(30).setBackgroundColor('#fb67df')
+
+            }
+            if (this.puppy.isAngry && this.checkCollision(this.puppy, this.cursor)) {
+                this.puppy.setVelocityX(0)
+                this.gameOver = true
+                this.add.text(game.config.width / 2, game.config.height / 2, 'GAME OVER', this.scoreConfig).setOrigin(0.5).setFontSize(60).setBackgroundColor('#fb67df')
+                this.add.text(game.config.width / 2, game.config.height / 2 + 64, 'Do not tickle the puppy when angry!\nPress (R) to Reset and (C) for Credits', this.scoreConfig).setOrigin(0.5).setFontSize(30).setBackgroundColor('#fb67df')
+            }
         }
 
         // Change scenes
@@ -127,8 +161,39 @@ class Play extends Phaser.Scene {
         const cursorBounds = cursor.getBounds()
 
         const cursorX = cursorBounds.x + cursorBounds.width
-        const cursorY = cursorBounds.y + cursorBounds.height - 175
+        const cursorY = cursorBounds.y + cursorBounds.height - 150
 
         return puppyBounds.contains(cursorX, cursorY)
     }
+
+    updateHeartCounterText() {
+        this.heartCounterText.setText(`Hearts Ticked: ${this.heartCounter}`)
+    }
+
+    activateAngryMode() {
+        // Set the puppy to angry mode
+        this.puppy.isAngry = true
+        this.puppy.anims.play('angry', true)
+
+        // Set a timer to return the puppy to normal state after 3 to 5 seconds
+        const duration = Phaser.Math.Between(3000, 5000) // Random duration between 3 to 5 seconds
+        this.time.addEvent({
+            delay: duration,
+            callback: this.deactivateAngryMode,
+            callbackScope: this
+        })
+
+        this.time.addEvent({
+            delay: Phaser.Math.Between(10000, 20000),
+            callback: this.activateAngryMode,
+            callbackScope: this
+        })
+    }
+
+    deactivateAngryMode() {
+        // Return the puppy to normal state
+        this.puppy.isAngry = false
+        this.puppy.anims.play('idle', true)
+    }
+
 }

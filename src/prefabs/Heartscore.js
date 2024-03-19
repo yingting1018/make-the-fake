@@ -24,7 +24,7 @@ class Heartscore extends Phaser.Physics.Arcade.Sprite {
 
     ticklePuppy() {
         // Play the filling animation for the current heart
-        this.hearts[this.currentHeartIndex].anims.play('filling-heart', true);
+        this.hearts[this.currentHeartIndex].anims.play('filling-heart', true)
 
         // Move to the next heart
         this.currentHeartIndex++

@@ -37,6 +37,13 @@ class Puppy extends Phaser.Physics.Arcade.Sprite {
             frames: scene.anims.generateFrameNumbers(texture, { start: 1, end: 2 })
         })
 
+        scene.anims.create({
+            key: 'angry',
+            frameRate: 1,
+            repeart: -1,
+            frames: scene.anims.generateFrameNumbers(texture, { start: 3, end: 3 })
+        })
+
         // Set default animation
         this.anims.play('idle', true)
     }
